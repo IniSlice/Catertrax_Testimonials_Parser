@@ -150,6 +150,7 @@ dmypy.json
 
 ### Text Files ###
 *.doc
+*.csv
 *.docx
 *.log
 *.msg
