@@ -68,13 +68,17 @@ def write_csv(fname, data):
 
 def main():
     file_name = 'testimonials.csv'
-    url = "https://catertrax.com/why-catertrax/traxers/page/1/"
     user_agent = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36 OPR/83.0.4254.27 (Edition Yx 05)"}
-
-    html = get_html(url, user_agent)
-    articles = get_articles(html)
-    for data in get_page_data(articles):
-        write_csv(file_name, data)
+    number = 1
+    while True:
+        url = f"https://catertrax.com/why-catertrax/traxers/page/{number}/"
+        html = get_html(url, user_agent)
+        articles = get_articles(html)
+        if not articles:
+            break
+        for data in get_page_data(articles):
+            write_csv(file_name, data)
+        number += 1
 
 if __name__ == '__main__':
     main()
