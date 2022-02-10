@@ -2,13 +2,14 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 import csv
 
-def get_html(url, headers=None):
+def get_html(url, session_obj=None, headers=None):
     """
     Request to the server and receiving a response,
     in the form of an html code of a web page.
     """
-    try: 
-        response = requests.get(url, timeout = 5, headers=headers)
+    try:
+        request = session_obj if session_obj else requests
+        response = request.get(url, timeout = 5, headers=headers)
         # Raise an HTTPError exception if the status of the request code is not 2xx. 
         response.raise_for_status()
     except requests.exceptions.HTTPError as http_err:
@@ -20,10 +21,11 @@ def get_html(url, headers=None):
     else:
         return response.text
 
-    
 def get_articles(html):
     """Parsing and getting a list from users and their testimonials."""
-    soup = BeautifulSoup(html, 'lxml')
+    # При помощи класса SoupStrainer вырезаем часть html страницы с тегами <article>
+    only_article_tags = SoupStrainer('article')
+    soup = BeautifulSoup(html, 'lxml', parse_only=only_article_tags)
     articles = soup.find_all('article')
     return articles
 
@@ -59,26 +61,28 @@ def get_page_data(articles):
         }
         yield data
 
-def write_csv(fname, data):
+def write_csv(fname, data_array):
     """Write packed data to csv file."""
     with open(fname, 'a', newline='', encoding='utf-8') as f:
-        order = data.keys()
+        order = ('Name', 'Profession', 'Client since', 'Testimonial')
         writer = csv.DictWriter(f, fieldnames=order)
-        writer.writerow(data)
+        for data in data_array:
+            writer.writerow(data)
 
 def main():
     file_name = 'testimonials.csv'
     user_agent = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36 OPR/83.0.4254.27 (Edition Yx 05)"}
-    number = 1
-    while True:
-        url = f"https://catertrax.com/why-catertrax/traxers/page/{number}/"
-        html = get_html(url, user_agent)
-        articles = get_articles(html)
-        if not articles:
-            break
-        for data in get_page_data(articles):
-            write_csv(file_name, data)
-        number += 1
+    
+    with requests.Session() as s:
+        number = 1
+        while True:
+            url = f"https://catertrax.com/why-catertrax/traxers/page/{number}/"
+            html = get_html(url, session_obj=s, headers=user_agent)
+            articles = get_articles(html)
+            if not articles:
+                break
+            write_csv(file_name, get_page_data(articles))
+            number += 1
 
 if __name__ == '__main__':
     main()
