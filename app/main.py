@@ -23,7 +23,8 @@ def get_html(url, session_obj=None, headers=None):
 
 def get_articles(html):
     """Parsing and getting a list from users and their testimonials."""
-    # При помощи класса SoupStrainer вырезаем часть html страницы с тегами <article>
+    # Using the SoupStrainer class, we cut out 
+    # the part of the html page with the <article> tags
     only_article_tags = SoupStrainer('article')
     soup = BeautifulSoup(html, 'lxml', parse_only=only_article_tags)
     articles = soup.find_all('article')
@@ -61,28 +62,28 @@ def get_page_data(articles):
         }
         yield data
 
-def write_csv(fname, data_array):
-    """Write packed data to csv file."""
-    with open(fname, 'a', newline='', encoding='utf-8') as f:
-        order = ('Name', 'Profession', 'Client since', 'Testimonial')
-        writer = csv.DictWriter(f, fieldnames=order)
-        for data in data_array:
-            writer.writerow(data)
-
 def main():
     file_name = 'testimonials.csv'
     user_agent = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36 OPR/83.0.4254.27 (Edition Yx 05)"}
-    
-    with requests.Session() as s:
-        number = 1
-        while True:
-            url = f"https://catertrax.com/why-catertrax/traxers/page/{number}/"
-            html = get_html(url, session_obj=s, headers=user_agent)
-            articles = get_articles(html)
-            if not articles:
-                break
-            write_csv(file_name, get_page_data(articles))
-            number += 1
+
+    with open(file_name, 'w', newline='', encoding='utf-8') as f:
+        order = ('Name', 'Profession', 'Client since', 'Testimonial')
+        writer = csv.DictWriter(f, fieldnames=order)
+        writer.writeheader()
+        # Create a permanent connection 
+        with requests.Session() as s:
+            number = 1
+            # Iterating through web pages (pagination)
+            while True:
+                url = f"https://catertrax.com/why-catertrax/traxers/page/{number}/"
+                html = get_html(url, session_obj=s, headers=user_agent)
+                articles = get_articles(html)
+                if not articles:
+                    break
+                # Iterating through web pages data generator and write to csv file 
+                for data in get_page_data(articles):
+                    writer.writerow(data)
+                number += 1
 
 if __name__ == '__main__':
     main()
