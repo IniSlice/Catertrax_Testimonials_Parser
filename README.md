@@ -5,7 +5,7 @@ A small web scraper of data and customer testimonials, from the site CaterTrax c
 This web scraper allows you to:
 - Scraping basic client data (Name, Profession, Testimonial, etc.) using the BeautifulSoup library;
 - Scraping data from dynamically loaded web pages using AJAX requests;
-- Save normalized and cleaned data to CSV file.
+- Saving normalized and cleaned data to CSV file.
 
 ## Installation
 1. git clone https://github.com/IniSlice/catertrax_testimonials_parser.git
