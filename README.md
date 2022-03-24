@@ -8,7 +8,7 @@ This web scraper allows you to:
 - Saving normalized and cleaned data to CSV file.
 
 ## Installation
-1. git clone https://github.com/IniSlice/catertrax_testimonials_parser.git
+1. git clone https://github.com/digitskiy/catertrax_testimonials_parser.git
 2. Install virtual environment: $ python3 -m venv myenv
 3. Activate virtual environment: for Windows $ myenv\Scripts\activate for Linux $ source myenv/bin/activate
 4. Install requirements: (myenv) $ pip install -r requirements.txt
